@@ -1,0 +1,87 @@
+mutation SeedData @transaction @auth(level: NO_ACCESS) {
+  user_insertMany(data: [
+    {
+      id: "677819a1-a42c-4943-9c18-a882487b0752",
+      displayName: "demouser1",
+      email: "demouser1@example.com"
+    },
+    {
+      id: "677819a1-a42c-4943-9c18-a882487b0753",
+      displayName: "demouser2",
+      email: "demouser2@example.com"
+    }
+  ])
+  movie_insertMany(data: [
+    {
+      id: "d81f354f-5924-40f6-a9b7-29e99054b85d",
+      title: "Oppenheimer",
+      year: 2023,
+      genres: ["biography", "drama", "history"]
+    },
+    {
+      id: "677819a1-a42c-4943-9c18-a882487b0754",
+      title: "Parasite",
+      year: 2019,
+      genres: ["comedy", "drama", "thriller"]
+    }
+  ])
+  watch_insertMany(data: [
+    {
+      userId: "677819a1-a42c-4943-9c18-a882487b0752",
+      movieId: "d81f354f-5924-40f6-a9b7-29e99054b85d",
+      watchDate: "2024-01-01"
+    },
+    {
+      userId: "677819a1-a42c-4943-9c18-a882487b0753",
+      movieId: "677819a1-a42c-4943-9c18-a882487b0754",
+      watchDate: "2023-12-25"
+    }
+  ])
+  review_insertMany(data: [
+    {
+      userId: "677819a1-a42c-4943-9c18-a882487b0752",
+      movieId: "d81f354f-5924-40f6-a9b7-29e99054b85d",
+      watchId: "677819a1-a42c-4943-9c18-a882487b0752",
+      rating: 5,
+      review: "An amazing movie!"
+    },
+    {
+      userId: "677819a1-a42c-4943-9c18-a882487b0753",
+      movieId: "677819a1-a42c-4943-9c18-a882487b0754",
+      watchId: "677819a1-a42c-4943-9c18-a882487b0753",
+      rating: 4,
+      review: "A good movie!"
+    }
+  ])
+}
+
+query ListPublicMovies @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  movies(where: { year: { gt: 2020 } }) {
+    id
+    title
+    year
+    genres
+  }
+}
+
+query GetUserLists($userId: UUID!) @auth(level: USER) {
+  lists(where: { userId: { eq: $userId } }) {
+    id
+    name
+    description
+    isPublic
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateList($name: String!, $description: String!, $isPublic: Boolean!) @auth(level: USER) {
+  list_insert(data: {
+    userId_expr: "auth.uid",
+    name: $name,
+    description: $description,
+    isPublic: $isPublic,
+    createdAt_expr: "request.time",
+    updatedAt_expr: "request.time"
+  })
+}
