@@ -1,9 +1,11 @@
 import React from "react"
+import Header from "./Header";
 
 const Browes = ()=>{
     return (
         <>
-        <h1>This is Browes</h1>
+        <Header />
+        
         </>
     )
 };
